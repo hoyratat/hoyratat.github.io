@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+<link rel="stylesheet" href="/_assets/main.css" />
+
+    <title>Excel Çoklu dosyayı tek sayfada birleştirme macrosu  - Notes</title>
+  <link rel="stylesheet" href="/_markdown_plugin_assets/highlight.js/atom-one-light.css" /></head>
+  <body>
+    <div class="main">
+      <nav class="navigation">
+        <a href="/">Notes</a>
+      </nav>
+      <article>
+        <header>
+          <h1 class="article-title">Excel Çoklu dosyayı tek sayfada birleştirme macrosu </h1>
+          <div class="article-info">
+            <div>
+              <span
+                >Created At：<time datetime="1727530727550"
+                  >2024-09-28 16:38</time
+                ></span
+              >
+              <span
+                >Updated At：<time datetime="1727530779613"
+                  >2024-09-28 16:39</time
+                ></span
+              >
+            </div>
+            
+            <div>
+              Keywords: 
+              <span class="keyword">excel</span>
+              
+            </div>
+            
+          </div>
+        </header>
+        <div class="article-content markdown-body"><div><pre class="hljs"><code>
+
+<span class="hljs-keyword">Sub</span> MergeWorkbooks()
+    <span class="hljs-comment">' Change the folder path, but keep the backslash.</span>
+    <span class="hljs-keyword">Const</span> strPath = <span class="hljs-string">"C:\Excel\"</span>
+    <span class="hljs-keyword">Dim</span> strFile <span class="hljs-keyword">As</span> <span class="hljs-type">String</span>
+    <span class="hljs-keyword">Dim</span> wbkS <span class="hljs-keyword">As</span> Workbook
+    <span class="hljs-keyword">Dim</span> wshS <span class="hljs-keyword">As</span> Worksheet
+    <span class="hljs-keyword">Dim</span> wbkT <span class="hljs-keyword">As</span> Workbook
+    <span class="hljs-keyword">Dim</span> wshT <span class="hljs-keyword">As</span> Worksheet
+    <span class="hljs-keyword">Dim</span> r <span class="hljs-keyword">As</span> <span class="hljs-type">Long</span>
+    <span class="hljs-keyword">Dim</span> countFiles <span class="hljs-keyword">As</span> <span class="hljs-type">Integer</span>
+    <span class="hljs-keyword">Dim</span> countSheets <span class="hljs-keyword">As</span> <span class="hljs-type">Integer</span>
+    Application.ScreenUpdating = <span class="hljs-literal">False</span>
+    <span class="hljs-keyword">Set</span> wbkT = Workbooks.Add(xlWBATWorksheet)
+    <span class="hljs-keyword">Set</span> wshT = wbkT.Worksheets(<span class="hljs-number">1</span>)
+    wshT.Name = <span class="hljs-string">"MergedSheet"</span>
+    strFile = Dir(strPath &amp; <span class="hljs-string">"*.xls*"</span>)
+    <span class="hljs-keyword">Do</span> <span class="hljs-keyword">While</span> strFile &lt;&gt; <span class="hljs-string">""</span> <span class="hljs-built_in">And</span> LCase(strFile) &lt;&gt; <span class="hljs-string">"donnamaster.xlsx"</span>
+        countFiles = countFiles + <span class="hljs-number">1</span>
+        <span class="hljs-keyword">Set</span> wbkS = Workbooks.Open(strPath &amp; strFile)
+        <span class="hljs-keyword">For</span> <span class="hljs-keyword">Each</span> wshS <span class="hljs-keyword">In</span> wbkS.Worksheets
+            countSheets = countSheets + <span class="hljs-number">1</span>
+            <span class="hljs-keyword">If</span> countSheets = <span class="hljs-number">1</span> <span class="hljs-keyword">Then</span>
+                wshS.Range(<span class="hljs-string">"A1"</span>).EntireRow.Copy _
+                   Destination:=wshT.Range(<span class="hljs-string">"A1"</span>)
+            <span class="hljs-keyword">End</span> <span class="hljs-keyword">If</span>
+            r = wshT.Cells.Find(What:=<span class="hljs-string">"*"</span>, SearchOrder:=xlByRows, _
+                SearchDirection:=xlPrevious).Row + <span class="hljs-number">1</span>
+            wshS.UsedRange.Offset(<span class="hljs-number">1</span>).Copy Destination:=wshT.Range(<span class="hljs-string">"A"</span> &amp; r)
+        <span class="hljs-keyword">Next</span> wshS
+        wbkS.Close SaveChanges:=<span class="hljs-literal">False</span>
+        strFile = Dir
+    <span class="hljs-keyword">Loop</span>
+    <span class="hljs-comment">' Optional: save the new workbook</span>
+    wbkT.SaveAs Filename:=strPath &amp; <span class="hljs-string">"DONNAMASTER.xlsx"</span>, _
+        FileFormat:=xlOpenXMLWorkbook
+    wbkT.Close
+    Application.ScreenUpdating = <span class="hljs-literal">True</span>
+    MsgBox <span class="hljs-string">"Processed "</span> &amp; countFiles &amp; <span class="hljs-string">" files"</span> &amp; vbCrLf &amp; _
+        <span class="hljs-string">"Merged "</span> &amp; countSheets &amp; <span class="hljs-string">" worksheets"</span>, _
+        Title:=<span class="hljs-string">"Merge Excel files"</span>
+<span class="hljs-keyword">End</span> <span class="hljs-keyword">Sub</span>
+
+</code></pre></div>
+<p><a title="https://answers.microsoft.com/en-us/msoffice/forum/all/help-to-combine-macros-that-copy-sheets-in-a/b60ae3e8-247a-4778-b9c4-40146d80dab4" href="https://answers.microsoft.com/en-us/msoffice/forum/all/help-to-combine-macros-that-copy-sheets-in-a/b60ae3e8-247a-4778-b9c4-40146d80dab4">https://answers.microsoft.com/en-us/msoffice/forum/all/help-to-combine-macros-that-copy-sheets-in-a/b60ae3e8-247a-4778-b9c4-40146d80dab4</a></p>
+</div>
+      </article>
+    </div>
+  </body>
+</html>
